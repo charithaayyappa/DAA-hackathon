@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Who's next? Triage queue</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#c9c3ff;--card:#fff;--ink:#14111f;--mute:#4a4666;--sh:#14111f;--btn:#14111f;--on-btn:#fff;--dots:rgba(20,17,31,.16);
+--p5:#ff4d6d;--p4:#ff9f1c;--p3:#ffe14d;--p2:#3ddc97;--p1:#6ea8ff}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1a1630;--card:#2b2550;--ink:#f6f3ff;--mute:#b9b2dd;--sh:#9d8cff;--btn:#ffe14d;--on-btn:#14111f;--dots:rgba(255,255,255,.1)}}
+:root[data-theme="dark"]{--bg:#1a1630;--card:#2b2550;--ink:#f6f3ff;--mute:#b9b2dd;--sh:#9d8cff;--btn:#ffe14d;--on-btn:#14111f;--dots:rgba(255,255,255,.1)}
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0;min-height:100%}
+body{color:var(--ink);font:500 16px/1.45 "Bricolage Grotesque",system-ui,Arial,sans-serif;background:var(--bg) radial-gradient(var(--dots) 1.5px,transparent 1.5px) 0 0/22px 22px}
+.wrap{max-width:1140px;margin:0 auto;padding:22px 16px 56px}
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:20px}
+h1{font-size:clamp(2.4rem,7vw,4.6rem);font-weight:800;line-height:.95;letter-spacing:-.04em;margin:0}
+.sub{margin:6px 0 0;color:var(--mute)}
+h2{font-size:1.35rem;font-weight:800;letter-spacing:-.02em;margin:0 0 12px}
+.box{background:var(--card);border:3px solid var(--ink);border-radius:18px;box-shadow:7px 7px 0 var(--sh);padding:18px}
+button{font:inherit;font-weight:800;cursor:pointer;color:var(--on-btn);background:var(--btn);border:3px solid var(--ink);border-radius:14px;padding:10px 18px;box-shadow:4px 4px 0 var(--sh);transition:transform .1s,box-shadow .1s}
+button:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--sh)}
+button:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--sh)}
+button.alt{background:var(--card);color:var(--ink);padding:7px 14px;font-size:.9rem}
+button:disabled{opacity:.45;cursor:not-allowed}
+:focus-visible{outline:4px solid var(--p4);outline-offset:3px}
+.hero{--c:var(--card);background:var(--c);color:var(--oc,var(--ink));position:relative;padding:28px;margin-bottom:26px;overflow:hidden}
+.hero .big{font-size:clamp(2.4rem,9vw,5.6rem);font-weight:800;letter-spacing:-.04em;line-height:1;margin:6px 0 12px;overflow-wrap:anywhere}
+.chip{display:inline-block;border:3px solid #14111f;background:#fff;color:#14111f;border-radius:99px;padding:1px 14px;font-weight:800}
+.sticker{position:absolute;right:20px;top:16px;width:92px;height:92px;display:grid;place-items:center;border-radius:50%;border:3px solid #14111f;background:#fff;color:#14111f;font-size:2.8rem;font-weight:800;transform:rotate(10deg)}
+.hero.crit .sticker{animation:wob 1.4s ease-in-out infinite}
+@keyframes wob{50%{transform:rotate(-10deg) scale(1.08)}}
+@media(prefers-reduced-motion:reduce){.hero.crit .sticker{animation:none}}
+.hero .row button{background:#14111f;color:#fff;border-color:#14111f;box-shadow:4px 4px 0 #fff}
+.layout{display:grid;grid-template-columns:330px 1fr;gap:26px;align-items:start;margin-bottom:26px}
+@media(max-width:840px){.layout{grid-template-columns:1fr}}
+label{display:block;font-weight:800;margin:12px 0 4px}
+input,select{font:inherit;width:100%;padding:10px 12px;color:var(--ink);background:var(--card);border:3px solid var(--ink);border-radius:12px}
+select option{color:#111;background:#fff}
+.pills{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.pill{background:var(--c);color:#14111f;padding:8px 0;border-radius:12px;font-size:.72rem;line-height:1.15;box-shadow:none}
+.pill b{display:block;font-size:1.3rem}
+.pill[aria-pressed="false"]{opacity:.55}
+.pill[aria-pressed="true"]{box-shadow:4px 4px 0 var(--sh);transform:translate(-2px,-2px)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px}
+.msg{min-height:1.4em;margin:12px 0 0;font-weight:700}
+.msg.bad{color:#e0183f}
+:root[data-theme="dark"] .msg.bad{color:#ff7a93}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .msg.bad{color:#ff7a93}}
+.tags{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:22px 18px}
+.tag{position:relative;background:var(--card);border:3px solid var(--ink);border-radius:6px 6px 16px 16px;box-shadow:5px 5px 0 var(--sh);padding:0 0 12px;transition:transform .15s}
+.tag:nth-child(odd){transform:rotate(-1.2deg)}.tag:nth-child(even){transform:rotate(1.2deg)}
+.tag:hover{transform:rotate(0) translateY(-4px)}
+.band{background:var(--c);color:#14111f;border-bottom:3px solid var(--ink);padding:16px 12px 6px;font-weight:800;display:flex;justify-content:space-between}
+.hole{position:absolute;left:50%;top:-3px;width:22px;height:22px;margin-left:-11px;border-radius:50%;background:var(--bg);border:3px solid var(--ink);z-index:1}
+.tag .nm{font-size:1.35rem;font-weight:800;letter-spacing:-.02em;padding:8px 12px 0;overflow-wrap:anywhere}
+.tag .mt{padding:0 12px;color:var(--mute);font-size:.88rem}
+.tag select{width:calc(100% - 24px);margin:10px 12px 0;padding:6px 8px}
+.empty{color:var(--mute);font-weight:700}
+svg{display:block;width:100%;height:auto}
+.edge{stroke:var(--ink);stroke-width:3}
+.node circle{stroke:var(--ink);stroke-width:3}
+.node text{fill:#14111f;font-weight:800;text-anchor:middle;font-family:inherit}
+.node .lbl{fill:var(--ink);font-weight:500}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div><h1>Who's next?</h1><p class="sub" id="count"></p></div>
+    <div class="row" style="margin:0">
+      <button class="alt" id="clear" type="button">Clear queue</button>
+      <button class="alt" id="theme" type="button">Switch theme</button>
+    </div>
+  </div>
+
+  <section class="box hero" id="hero" aria-live="polite"></section>
+
+  <div class="layout">
+    <form class="box" id="addForm" autocomplete="off">
+      <h2>New arrival</h2>
+      <label for="pid">Patient ID</label><input id="pid" required>
+      <label for="pname">Name</label><input id="pname" required placeholder="Type a name">
+      <label>How urgent?</label><div class="pills" id="pills"></div>
+      <div class="row"><button type="submit">Add to queue</button></div>
+      <p class="msg" id="msg" role="status"></p>
+    </form>
+    <section>
+      <h2>Waiting room</h2>
+      <ol class="tags" id="list"></ol>
+    </section>
+  </div>
+
+  <section class="box">
+    <h2>Inside the heap</h2>
+    <p class="sub" style="margin:-6px 0 8px">Every parent outranks its children, so the top circle is always next.</p>
+    <div id="tree"></div>
+  </section>
+</div>
+
+<script>
+const LABEL={5:"Critical",4:"Emergent",3:"Urgent",2:"Less urgent",1:"Minor"};
+const COLOR=p=>`var(--p${p})`;
+
+/* ---------- manual binary max-heap ---------- */
+class HospitalQueue{
+  constructor(){this.h=[];this.pos=new Map();this.counter=0}
+  higher(a,b){return a.priority!==b.priority?a.priority>b.priority:a.arrival<b.arrival}
+  swap(i,j){const h=this.h;[h[i],h[j]]=[h[j],h[i]];this.pos.set(h[i].id,i);this.pos.set(h[j].id,j)}
+  up(i){while(i>0){const p=(i-1)>>1;if(this.higher(this.h[i],this.h[p])){this.swap(i,p);i=p}else break}return i}
+  down(i){const n=this.h.length;for(;;){const l=2*i+1,r=l+1;let b=i;
+    if(l<n&&this.higher(this.h[l],this.h[b]))b=l;
+    if(r<n&&this.higher(this.h[r],this.h[b]))b=r;
+    if(b===i)return i;this.swap(i,b);i=b}}
+  static check(p){if(!Number.isInteger(p)||p<1||p>5)throw new Error("Priority must be a whole number from 1 to 5.")}
+  add(id,name,priority){
+    id=String(id).trim();name=String(name).trim();
+    if(!id)throw new Error("Patient ID is required.");
+    if(this.pos.has(id))throw new Error(`ID ${id} is already in the queue. Use a different ID.`);
+    if(!name)throw new Error("Name is required.");
+    HospitalQueue.check(priority);
+    const p={id,name,priority,arrival:this.counter++};
+    this.h.push(p);this.pos.set(id,this.h.length-1);this.up(this.h.length-1);return p}
+  peek(){return this.h[0]||null}
+  next(){if(!this.h.length)return null;
+    const root=this.h[0],last=this.h.pop();this.pos.delete(root.id);
+    if(this.h.length){this.h[0]=last;this.pos.set(last.id,0);this.down(0)}return root}
+  update(id,priority){
+    if(!this.pos.has(id))throw new Error(`No patient with ID ${id} is waiting.`);
+    HospitalQueue.check(priority);
+    let i=this.pos.get(id);this.h[i].priority=priority;i=this.up(i);this.down(i)}
+  ordered(){return[...this.h].sort((a,b)=>this.higher(a,b)?-1:1)} // display only
+}
+
+/* ---------- UI ---------- */
+let q=new HospitalQueue(),treated=0,seq=1,pri=3;
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const nextId=()=>"ED-"+String(seq).padStart(3,"0");
+const say=(t,bad=false)=>{$("msg").textContent=t;$("msg").className="msg"+(bad?" bad":"")};
+
+function drawPills(){
+  $("pills").innerHTML=[5,4,3,2,1].map(p=>`<button type="button" class="pill" style="--c:${COLOR(p)}" data-p="${p}" aria-pressed="${p===pri}"><b>${p}</b>${LABEL[p]}</button>`).join("")}
+
+function tree(){
+  const n=q.h.length;if(!n)return `<div class="empty">The heap is empty. Add a patient and watch it grow.</div>`;
+  const W=760,L=Math.floor(Math.log2(n))+1,H=56+(L-1)*80,pt=i=>{const d=Math.floor(Math.log2(i+1)),k=i-(2**d-1);return[(k+.5)/2**d*W,32+d*80,d]};
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Binary heap tree of waiting patients">`;
+  for(let i=1;i<n;i++){const[x,y]=pt(i),[px,py]=pt((i-1)>>1);s+=`<line class="edge" x1="${px}" y1="${py}" x2="${x}" y2="${y}"/>`}
+  q.h.forEach((p,i)=>{const[x,y,d]=pt(i),r=d>3?11:d>2?15:21;
+    s+=`<g class="node"><title>${esc(p.name)} (${LABEL[p.priority]})</title>
+    ${i===0?`<circle cx="${x}" cy="${y}" r="${r+7}" fill="none" stroke-dasharray="5 4"/>`:""}
+    <circle cx="${x}" cy="${y}" r="${r}" fill="${COLOR(p.priority)}"/>
+    <text x="${x}" y="${y+5}" font-size="${r>14?16:11}">${p.priority}</text>
+    ${d<4?`<text class="lbl" x="${x}" y="${y+r+16}" font-size="12">${esc(p.name.slice(0,9))}</text>`:""}</g>`});
+  return s+"</svg>"}
+
+function render(){
+  const n=q.h.length,top=q.peek(),hero=$("hero");
+  $("count").textContent=n?`${n} ${n===1?"patient":"patients"} waiting, ${treated} treated so far`:`Nobody waiting, ${treated} treated so far`;
+  hero.style.setProperty("--c",top?COLOR(top.priority):"var(--card)");
+  hero.style.setProperty("--oc",top?"#14111f":"var(--ink)");
+  hero.className="box hero"+(top&&top.priority===5?" crit":"");
+  hero.innerHTML=top?`<div class="sticker" aria-hidden="true">${top.priority}</div>
+    <div>Now calling</div><div class="big">${esc(top.name)}</div>
+    <span class="chip">${LABEL[top.priority]}</span> <span>${esc(top.id)}, arrival #${top.arrival+1}</span>
+    <div class="row"><button id="callBtn" type="button">Doctor is free: call next</button></div>`
+    :`<div>Now calling</div><div class="big">Nobody yet</div><div>Register an arrival to start the queue.</div>`;
+  $("list").innerHTML=n?q.ordered().map((p,i)=>`
+    <li class="tag" style="--c:${COLOR(p.priority)}"><span class="hole"></span>
+      <div class="band"><span>${LABEL[p.priority]}</span><span>#${i+1}</span></div>
+      <div class="nm">${esc(p.name)}</div>
+      <div class="mt">${esc(p.id)}, arrived #${p.arrival+1}</div>
+      <select data-id="${esc(p.id)}" aria-label="Priority for ${esc(p.name)}">${[5,4,3,2,1].map(v=>`<option value="${v}" ${v===p.priority?"selected":""}>${v} · ${LABEL[v]}</option>`).join("")}</select>
+    </li>`).join(""):`<li class="empty" style="grid-column:1/-1">The waiting room is empty.</li>`;
+  $("tree").innerHTML=tree();
+  if(!$("pid").value||q.pos.has($("pid").value))$("pid").value=nextId();
+}
+
+document.addEventListener("click",e=>{
+  if(e.target.id==="callBtn"){const p=q.next();if(p){treated++;say(`${p.name} is being treated.`)}render()}
+  const pill=e.target.closest(".pill");if(pill){pri=Number(pill.dataset.p);drawPills()}
+});
+$("list").addEventListener("change",e=>{
+  const id=e.target.dataset.id;if(!id)return;
+  try{q.update(id,Number(e.target.value));say(`Priority updated for ${id}.`)}catch(err){say(err.message,true)}
+  render()});
+$("addForm").addEventListener("submit",e=>{
+  e.preventDefault();
+  try{const p=q.add($("pid").value,$("pname").value,pri);
+    say(`${p.name} added as ${LABEL[p.priority].toLowerCase()}.`);
+    if($("pid").value.trim()===nextId())seq++;
+    $("pname").value="";$("pid").value="";render();$("pname").focus()}
+  catch(err){say(err.message,true)}});
+$("clear").addEventListener("click",()=>{q=new HospitalQueue();treated=0;seq=1;$("pid").value="";say("Queue cleared.");render()});
+$("theme").addEventListener("click",()=>{
+  const r=document.documentElement,dark=matchMedia("(prefers-color-scheme: dark)").matches;
+  const cur=r.dataset.theme||(dark?"dark":"light");r.dataset.theme=cur==="dark"?"light":"dark"});
+
+drawPills();render();
+</script>
+</body>
+</html>
